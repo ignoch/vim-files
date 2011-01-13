@@ -1,0 +1,430 @@
+module ApplicationHelper
+
+  FLASH_NOTICE_KEYS = [:error, :notice, :warning]
+
+  def flash_messages
+    return unless messages = flash.keys.select{|k| FLASH_NOTICE_KEYS.include?(k)}
+    formatted_messages = messages.map do |type|
+      content_tag :div, :class => type.to_s do
+        message_for_item(flash[type], flash["#{type}_item".to_sym])
+      end
+    end
+    flash.discard
+    formatted_messages.join
+  end
+
+  def message_for_item(message, item = nil)
+    if item.is_a?(Array)
+      message % link_to(*item)
+    else
+      message % item
+    end
+  end
+
+  def selected_menu(menu_url)
+    menu_url = menu_url.to_a unless menu_url.is_a?(Array)
+    menu_url.include?(request.url) ? 'selected' : ''
+  end
+
+  def link_submit_button(text, options = {})
+    options[:class] ||= ''
+    options[:url] ||= '#'
+    options[:class] = [options[:class], 'button submit'].join(' ').strip()
+    link_to content_tag(:span, text), options[:url], options
+  end
+
+  def link_button(text, options = {})
+    options[:class] ||= ''
+    link_url = options[:url] || '#'
+    options.delete(:url)
+    options[:class] = [options[:class], 'button'].join(' ').strip()
+    link_to content_tag(:span, text), link_url, options
+  end
+
+  def link_to_remote(name, url, options = {})
+    html = options.delete(:html) || {}
+
+    update = options.delete(:update)
+    if update.is_a?(Hash)
+      html["data-update-success"] = update[:success]
+      html["data-update-failure"] = update[:failure]
+    else
+      html["data-update-success"] = update
+    end
+
+    html["data-update-position"] = options.delete(:position)
+    html["data-method"]          = options.delete(:method)
+    html["data-remote"]          = "true"
+
+    html.merge!(options)
+
+    url = url_for(url) if url.is_a?(Hash)
+    link_to(name, url, html)
+  end
+
+  def current_tab_selected(controller, actions)
+   actions.is_a?(Array) ? (actions.select{|action| action.eql?(action_name)}.length>0 && controller_name.eql?(controller) ? "selected" : "") : (controller_name.eql?(controller) && action_name.eql?(actions) ? "selected" : "")
+  end
+
+  def login_class
+    'new-session' if controller_name.eql?('user_sessions') && action_name.eql?('new')
+  end
+
+  def current_person_occupation(person)
+    if person.company && person.occupation
+      occupation = I18n.t('people.current_occupation', :company => person.company.name, :occupation => person.occupation.name)
+    elsif person.occupation
+      occupation = person.occupation.name
+    end
+    occupation
+  end
+
+  def privacy_field(model_name, attribute_name, default_visibility = nil, include_all = true)
+    links = ''
+    divs = ''
+    content_tag(:div, :class => 'privacy-container', :id => "privacy_#{model_name}_#{attribute_name}") do
+      divs << content_tag(:div, :class => 'current-policy') do
+        attr_visibility = PrivacyPolicy.exists_policy(current_user.person.id, model_name.to_s, attribute_name.to_s, default_visibility)
+        visibility = Visibility.find(attr_visibility)
+        visibility.name
+      end
+      divs << content_tag(:div, :class => 'policy-image') do
+        content_tag(:ul, :class => 'policy-select') do
+          attribute_visibility = PrivacyPolicy.exists_policy(current_user.person.id, model_name.to_s, attribute_name.to_s)
+          Visibility.all.each do |visibility|
+            next if visibility.id.eql?(Visibility::ALL) && !include_all
+            links << content_tag(:li) do
+              link_to visibility.name, {:controller => 'privacy_policies',  :model_name => model_name, :attribute_name => attribute_name, :visibility_id => visibility.id }, :class => attribute_visibility.to_i.eql?(visibility.id) ? 'remote post selected' : 'remote post', :title => visibility.description
+            end
+          end
+          links
+        end
+      end
+    end
+  end
+
+  def validate_privacy_field(model, model_name, attribute_name, grade, default_visibility = nil)
+    if model.eql?(current_person)
+      return true
+    end
+    policy = PrivacyPolicy.exists_policy(model.id, model_name.to_s, attribute_name.to_s, default_visibility)
+    grade.to_i <= policy.to_i || policy.to_i.eql?(Visibility::ALL)
+  end
+
+  def validate_contact_status(company, person)
+    if company.co_owners.find_by_contact_id(person.id).nil? && company.assistants.find_by_contact_id(person.id).nil? && company.workers.find_by_contact_id(person.id).nil?
+      return true
+    else
+      return false
+    end
+  end
+
+  def email_subject(subject)
+    if subject.blank?
+      return t('emails.mail_options.show.no_subject')
+    else
+      return subject
+    end
+  end
+
+  def options_from_collection_for_select_with_option(collection, value_method, text_method, selected, extra_value, extra_text)
+    options_from_collection_for_select(collection, value_method, text_method, selected) << "<option value=\"#{extra_value}\">#{extra_text}</option>"
+  end
+
+  def options_for_select_with_attributes(container, selected = nil)
+    container = container.to_a if Hash === container
+    selected, disabled = extract_selected_and_disabled(selected)
+    options_for_select = container.inject([]) do |options, element|
+      text, value, html_attributes = option_text_value_and_html_attributes(element)
+      selected_attribute = ' selected="selected"' if option_value_selected?(value, selected)
+      disabled_attribute = ' disabled="disabled"' if disabled && option_value_selected?(value, disabled)
+      unless html_attributes.blank?
+        attribute_string = ""
+        html_attributes.each do |k,v|
+           attribute_string += " #{k}=\"#{v}\""
+        end
+      end
+      options << %(<option value="#{html_escape(value.to_s)}"#{selected_attribute}#{disabled_attribute}#{attribute_string}>#{html_escape(text.to_s)}</option>)
+    end
+    options_for_select.join("\n")
+  end
+
+  #based on option_text_and_value method, see vendor/rails/actionpack/lib/action_view/helpers/form_options_helper.rb:488
+  def option_text_value_and_html_attributes(option)
+    # Options are [text, value, attributes] pairs or triples, or a string which is used for content and value
+    if !option.is_a?(String) and option.respond_to?(:first)
+      [option.first, option[1], option[2]]
+    else
+      #just return the string for the content and value and nothing for the title
+      [option, option, nil]
+    end
+  end
+
+  def show_business_logo(business)
+    content_tag(:div, :id => 'logo') do
+      content = ''
+      content << image_tag(business.logo_url, :id => 'profile-picture')
+      content
+    end
+  end
+
+  def display_phone_numbers(form, object)
+    content_tag(:div, :id => 'phone_numbers') do
+      inner = ''
+      form.fields_for(:phone_numbers) do |nested_attributes|
+        inner << render(:partial => 'phone_numbers/form', :locals => { :phone_number_form => nested_attributes })
+      end
+
+      inner << content_tag(:div, :id => 'phone_number_template', :style => 'display:none;') do
+        fields_for "company[phone_numbers_attributes][new_phone_number]", PhoneNumber.new do |nested_attributes|
+          render(:partial => 'phone_numbers/form', :locals => { :phone_number_form => nested_attributes })
+        end
+      end
+      inner
+    end
+  end
+
+  def display_educations(form)
+    content = ''
+    form.fields_for :educations do |nested_attributes|
+      content << render(:partial => 'educations/form', :locals => { :education_form => nested_attributes })
+    end
+    content
+  end
+
+  def add_child_link(caption, data_list, data_association)
+    link_to(t(caption), '#', :class => 'add-child', :'data-list' => data_list, :'data-association' => data_association)
+  end
+
+  def is_business_path?
+    (params[:company_id] || params[:freelance_id])
+  end
+
+  def button_for(name, options={})
+    return content_tag(:button, content_tag(:span, content_tag(:span, name)), :class => options[:class], :type => options[:button_type], :id => options[:id])
+  end
+
+  def generate_desktop_title(person)
+    if person.eql?(current_person)
+      I18n.t('desktop.title.own')
+    else
+      I18n.t('desktop.title.else', :contact => person.name)
+    end
+  end
+
+  def display_name(person)
+    return t('global.you') if person.eql?(current_person)
+    person.name
+  end
+
+  def messages_for(owner, message_id)
+    messages = nil
+    messages = owner.messages.find(:all, :conditions => { :id => message_id }) if message_id
+    messages ||= owner.messages.recent
+    messages
+  end
+
+
+  def alpha_links(action, search)
+    return_text = ''
+    ('A'..'Z').to_a.each do |letter|
+      return_text << link_to("#{letter} ", { :action => action, :'search[start_with]' => letter, :'search[country_id]' => search[:country_id],  :'search[state_id]' => search[:state_id],  :'search[city_id]' => search[:city_id], :'search[:query]' => search[:query] })
+    end
+    return_text
+  end
+
+  def business_chat_image(business, size = nil)
+    image = ''
+    promotions_icon = ''
+    promotions_icon = '<div class=''has-promotion''></div>' unless business.promotions.empty?
+
+#    if business.operators?
+#      # if the current user is related to the company, may not start the chat
+#      if business.operators.include?(current_person.id)
+#        image << "<div class='business-chat-image'>
+#                  #{image_tag business.thumbnail_url, :class => size}
+#                  #{promotions_icon}
+#                 </div>"
+
+#      else
+#        image << "<div class='business-chat-image'>
+#                    #{link_to(image_tag(business.thumbnail_url, :class => size), '#',
+#                      :class => "business_chat_btn", :business => business.id,
+#                      :business_type => business.class.to_s, :title => t('chats.start'))}
+
+#                    #{hidden_field_tag 'chat_current_business_'+business.id.to_s, business.name}
+#                    #{hidden_field_tag 'chat_current_business_'+business.id.to_s+'_thumbnail', business.logo_url}
+#                    <div class='business-chat-image-status'>
+#                      #{image_tag('available.png', :id => 'chat_current_business_'+business.id.to_s+'_status_img')}
+#                    </div>
+#                    #{promotions_icon}
+#                  </div>
+#                 "
+#      end
+
+#    # if the company has no chat operators
+#    else
+#      image << "<div class='business-chat-image'>
+#                 #{image_tag business.thumbnail_url, :class => size, :title => t('chats.offline')}
+#                  <div class='business-chat-image-status'></div>
+#                  #{promotions_icon}
+#               </div>"
+#    end
+
+    # ------------------------------------------------------------------------------
+    # delete this when you enable chat
+    image << "<div class='business-chat-image'>
+              #{image_tag business.thumbnail_url, :class => size}
+              #{promotions_icon}
+             </div>"
+    # ------------------------------------------------------------------------------
+
+    image
+  end
+
+  def prepare_email
+    email = Email.new
+    email.comments.build
+    email
+  end
+
+  def distance_class(contact, person = current_person)
+    case contact.distance_to(person)
+    when Visibility::GRADE_1ST
+      'first-grade'
+    when Visibility::GRADE_2ND
+      'second-grade'
+    when Visibility::GRADE_3TH
+      'third-grade'
+    else
+      'none'
+    end
+  end
+
+  def display_select_options(value)
+    display = { I18n.t('collections.display.fullname') => 'fullname', I18n.t('collections.display.nickname') => 'nickname' }
+    options_for_select display, value
+  end
+
+  def desktop_title(person)
+    if current_person.eql?(@person)
+      I18n.t('desktop.title.own')
+    else
+      I18n.t('desktop.title.else', :contact => @person.name(false))
+    end
+  end
+
+  def block_me?(person)
+    return false if current_person.eql?(person)
+    current_person.people_blocked_me.include?(person)
+  end
+
+  def can_see_as_partner?(company, created_by)
+    begin
+      person = Person.find(created_by)
+    rescue Exception => e
+      return false
+    end
+
+    # For Messages
+    return true if company.is_a?(Company) and
+      company.partners.include?(person) and
+      (
+       !current_tab_selected('companies', 'show').eql?('selected') and
+       !controller_name.eql?('emails')
+      )
+
+    # For Emails
+    company.is_a?(Company) and
+    company.partners.include?(person) and
+    !current_tab_selected('companies', 'show').eql?('selected') and
+    controller_name.eql?('emails') and
+    params[:company_id]
+  end
+
+  def meets_the_required_fields?(business)
+    # Required For Companies
+    return true if business.is_a?(Company) and !business.company_types.blank? and
+      !business.business_description.blank? and !business.products_services.blank? and
+      business.disabled.eql?(false)
+  end
+
+  def contact_chat_image(contact, format = :small, id = '', classes = '', update_timestamp = false)
+    image = ''
+    # if the current user is related to the company, may not start the chat
+#    if (current_person.contacts.online.collect(&:contact) -
+#      current_person.blockeds - current_person.people_blocked_me).include?(contact)
+
+#      image << "<div class='contact-chat-image'>
+#                  <div class='contact-thumbnail-chat' contact_type='#{contact.class.name.to_s}'
+#                  contact_name='#{contact.name}' contact='#{contact.id}' title='#{t('chats.start')}'>
+#                    #{image_tag(contact.thumbnail_url(format, update_timestamp), :id => id, :class => classes)}
+#                    <div class='contact-chat-image-status'>
+#                      #{image_tag('available.png', :id => 'chat_current_contact_'+contact.id.to_s+'_status_img')}
+#                    </div>
+#                  </div>
+#                </div>
+#               "
+
+#    else
+#      image << "#{image_tag(contact.thumbnail_url(format, update_timestamp), :id => id, :class => classes)}"
+#    end
+
+    # ------------------------------------------------------------------------------
+    # delete this when you enable chat
+    image << "#{image_tag(contact.thumbnail_url(format, update_timestamp), :id => id, :class => classes)}"
+    # ------------------------------------------------------------------------------
+
+    image
+  end
+
+  def business_types(business)
+    types = ''
+    if business.is_a?(Freelance)
+      types << content_tag(:ul, :class => 'business-types') do
+        content_tag(:li, t('freelances.title'))
+      end
+    end
+    if business.is_a?(Company) && !business.company_types.blank?
+      types = content_tag(:ul, :class => 'business-types') do
+        items = ''
+        business.company_types.each do |type|
+          items << content_tag(:li, type.name)
+        end
+        items
+      end
+    end
+    types
+  end
+
+  def have_feeds?
+    !current_person.feeds.unread.count.eql?(0) ||
+    !current_person.unread_emails_counter.eql?(0)
+  end
+
+  def confirm_exit_without_saving
+    hidden_field_tag 'confirm-exit-without-saving', 'false', 'confirm-message' => t('flash_messages.exit_without_saving')
+  end
+
+  def draw_business_owners(business, show_all = false, extra_info = false)
+    content = ""
+    co_owners = show_all ? business.co_owner_people : Array(business.co_owner_people.rand)
+    co_owners.each do |co_owner|
+      content << render(:partial => 'people/person_card', :object => co_owner, :locals => { :extra_info => extra_info }) if validate_privacy_field(co_owner, :business, business.id, co_owner.distance_to(current_person), Visibility::GRADE_1ST)    
+    end
+    content << render(:partial => 'businesses/business_card', :object => business) if content.empty?
+    content
+  end
+
+  def banner_tapatio(controllers)
+    show_banner = true
+    if controllers.is_a?(Array)
+      controllers.include?(controller_name) ? show_banner = true : ''
+    else
+      controller_name.eql?(controllers) ? show_banner = true : ''
+    end 
+    render(:file => 'shared/tapatia') if show_banner 
+  end
+
+end
+

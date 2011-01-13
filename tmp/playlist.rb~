@@ -1,0 +1,121 @@
+class Playlist < ActiveRecord::Base  
+  has_many :campaign_items
+  has_many :groups
+  has_many :reports
+  has_many :external_items, :class_name => "CampaignItem", :conditions => {:visual_scope => ItemStatus::EXTERIOR } 
+  has_many :internal_items, :class_name => "CampaignItem", :conditions => {:visual_scope => ItemStatus::INTERIOR } 
+  has_many :cargador_items, :class_name => "CampaignItem", :conditions => {:visual_scope => ItemStatus::CARGADOR }
+
+  validates_associated :campaign_items
+
+  accepts_nested_attributes_for :campaign_items, :allow_destroy => true
+  accepts_nested_attributes_for :external_items, :allow_destroy => true
+  accepts_nested_attributes_for :internal_items, :allow_destroy => true
+  accepts_nested_attributes_for :cargador_items, :allow_destroy => true
+ 
+  def num_external_images
+    self.external_items.count
+  end
+
+  def num_internal_images
+    self.internal_items.count
+  end
+
+  def num_cargador_images
+    self.cargador_items.count
+  end
+
+  def is_updated?
+    return last_update
+  end
+
+  def generate_playlist
+    return if self.new_record?
+    playlist = PlaylistFile.new(self.name)
+    ItemStatus.scopes.each do |scope|
+      playlist.set_scope(scope)
+      next if self.is_updated?
+      if ItemStatus::EXTERIOR == scope
+        number_items = self.num_external_images
+	campaign_items = self.external_items 
+      elsif ItemStatus::INTERIOR == scope
+        number_items = self.num_internal_images
+        campaign_items = self.internal_items
+      elsif ItemStatus::CARGADOR == scope
+        number_items = self.num_cargador_images
+        campaign_items = self.cargador_items
+      end 
+      
+      #Header Playlist
+      header = Array.new
+      header << number_items
+      header << Time.now.strftime("%d/%m/%Y")
+      playlist.add_line(header.join(";"))
+
+      campaign_items.each do |item|
+        line = Array.new
+	
+        #I (letra I mayúscula). Para uso futuro.
+	line << "I"
+
+	#Días de la semana en que se presentará la imagen en cuestión. 1: Activo; 0: Inactivo
+	week = Array.new
+	week << (item.sunday ? 1 : 0)
+	week << (item.monday ? 1 : 0)
+	week << (item.tuesday ? 1 : 0)
+	week << (item.wednesday ? 1 : 0)
+	week << (item.thursday ? 1 : 0)
+	week << (item.friday ? 1 : 0)
+	week << (item.saturday ? 1 : 0)
+	line << week.join
+
+        # Hora de inicio del rango en que se presentará la imágen. Hora y minuto en formato 24 hrs.
+	line << item.time_start_field
+	line << item.time_end_field
+
+	# Tiempo que ha de permanecer la imagen en pantalla en milisegundos
+	line << (item.duration_transition * 1000).to_s.rjust(5,"0") 
+
+	# Tipo de transición (sólo funcional para archivos BMP).
+	line << item.type_transition
+
+	# Nombre del archivo a presentarse y su extensión.
+        line << playlist.valid_image_name(item.image_file_name) 
+	playlist.move_image(item.image.path)
+	playlist.add_line(line.join(';'))
+      end
+      playlist.save
+    end
+  end
+
+  def set_reports
+    playlist = PlaylistFile.new(self.name)
+    playlist.set_reports
+    directorio_registro = playlist.get_dir
+
+    Dir.foreach(directorio_registro) do |file|
+      next if file.match(/(^\.+)/)
+      # get date from file name
+      date = file.split(".").first
+      date = Time.parse(Report.report_format_date(date)).strftime("%Y/%m/%d").gsub(/\//,'-')
+      file_path = "#{directorio_registro}/#{file}"
+      report = Report.find_or_create_by_playlist_id_and_date(self.id,date)
+
+      if report.have_new_records?(file_path)
+        File.open(file_path) do |file|
+	  file.seek(report.read_lines, IO::SEEK_SET)
+	  while line = file.gets
+	    report_detail = report.report_details.build
+	    event = line.split(";")
+	    report_detail.capture_event(event)
+	    report_detail.save
+	  end
+	  report.read_lines = file.tell
+	  report.last_access = File.mtime(file)
+	  report.save            
+        end
+      end
+    end
+  end
+
+end

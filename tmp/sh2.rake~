@@ -1,0 +1,30 @@
+namespace :sh2 do
+  desc "Genera y sube los playlist"
+  task :make_playlists => ["sh2:create_playlist", "sh2:upload_campaigns"]
+
+  desc "Generacion de playlists"
+  task :create_playlist => :environment do
+    Playlist.all.each do |playlist|  
+      playlist.generate_playlists
+    end
+  end
+
+  desc "Subiendo archivos al servidor ftp"
+  task :upload_campaigns => :environment do
+    Thread.abort_on_exception = true
+    threads = Array.new
+    Equip.all.each_with_index do |equip,index|
+      threads << Thread.new(index) do
+    	equip.upload_campaign
+      end
+    end
+    threads.each { |t| t.join }
+  end
+
+  desc "Ingresando los reportes del Equipo a la DB"
+  task :generate_report => :environment do
+    Playlist.all.each do |playlist|
+      playlist.set_reports
+    end
+  end
+end

@@ -1,0 +1,36 @@
+class ReportDetail < ActiveRecord::Base
+  belongs_to :report
+  EVENTS = {'Reinicio'=>'Reinicio', 'Ab'=>'Abierto', 'Ce'=>'Cerrado', 'Us'=>'Con el Usuario', 'Re'=>'En reposo', 'In'=>'Dormido', 'Ac'=>'Despierto', 'Ca'=>'En el cargador', 'De'=>'Fuera del Cargador'}
+
+  scope :aperturas, lambda { |report| joins(:report).where("report_details.type_event = 'Ab' AND reports.id = ? ",report) }
+
+  def capture_event(event)
+    self.type_event = event[0] 
+    self.time = event[1] 
+    if event.size == 3
+      self.before_seconds_event = event[2]
+    end
+    if event.size == 4
+      self.image_event = event[2]
+      self.before_seconds_event = event[3]
+    end
+  end
+
+  def time=(str_time)
+    self.time_event = Time.parse(str_time) unless str_time.nil?
+  end
+
+  def time
+    time_event.strftime("%H:%M:%S")
+  end
+
+  def self.image_most_viewed(report_id)
+	report_id = sanitize_sql(report_id)
+	ReportDetail.find_by_sql("SELECT new.image_event,max(new.num_images) FROM (SELECT image_event,count(image_event) as num_images FROM report_details WHERE type_event='Ab' AND report_id = #{report_id} GROUP BY image_event,report_id) new").last.image_event
+  end
+
+  def event_format
+    return ReportDetail::EVENTS[event_type]
+  end
+
+end

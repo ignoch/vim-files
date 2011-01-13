@@ -1,0 +1,37 @@
+# Configures your navigation
+SimpleNavigation::Configuration.run do |navigation|
+  
+  navigation.autogenerate_item_ids = true
+
+  navigation.items do |primary|
+    
+    primary.dom_class = 'dropdown'
+    
+    primary.item :key_1, 'Catalogos', "", do |sub_nav|
+      sub_nav.item :key_1_1, 'Restaurantes', restaurants_path
+      sub_nav.item :key_1_2, 'Clientes', clients_path
+      sub_nav.item :key_1_3, 'Ubicaciones', "" do |location_sub_nav|
+        location_sub_nav.item :key_1_3_1, 'Paises', countries_path
+        location_sub_nav.item :key_1_3_2, 'Estados', states_path
+        location_sub_nav.item :key_1_3_3, 'Ciudades', cities_path
+      end
+      sub_nav.item :key_1_4, 'Usuarios del Sistema', users_path
+    end
+    primary.item :key_2, 'Equipos', '' do |sub_nav|
+      sub_nav.item :key_2_1, 'Equipos', equips_path
+      sub_nav.item :key_2_2, 'Grupos', groups_path
+    end
+    primary.item :key_3, 'Campañas', campaigns_path
+    primary.item :key_4, 'Playlists', playlists_path
+    primary.item :key_5, 'Reportes', '' do |sub_nav|
+      sub_nav.item :key_5_1, 'Detalle de Campañas', details_campaign_reports_path
+      sub_nav.item :key_5_2, 'Detalle de Equipos', details_equip_reports_path
+      sub_nav.item :key_5_3, 'Detalle de Grupos', details_group_reports_path
+      sub_nav.item :key_5_4, 'Detalle de Clientes', details_client_reports_path
+      sub_nav.item :key_5_5, 'Detalle de logs', details_log_reports_path
+    end
+    primary.item :key_6, 'Configuración', edit_configuration_path(1)
+
+  end
+
+end

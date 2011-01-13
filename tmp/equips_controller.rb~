@@ -1,0 +1,106 @@
+class EquipsController < InheritedResources::Base
+  authorize_resource :through => :current_user
+  layout 'dashboard'
+  add_breadcrumb 'Equipos', 'equips_path'
+  
+  def index
+    add_breadcrumb 'Listado de Equipos', 'equips_path'
+    @equips = Equip.all
+  end
+
+  def new
+    add_breadcrumb 'Nuevo Equipo', 'new_equip_path'
+    @equip = Equip.new
+  end
+
+  def delete
+    delete!(:notice => "Equipo eliminado con exito")
+  end
+
+  def behavior
+    @clients = Client.joins(:equips)
+  end
+
+  def get_last_serial
+    @cad = ""
+    unless params[:country_id].empty? || params[:state_id].empty? || params[:city_id].empty?
+      @cad = Serial.update_folio(params[:country_id], params[:state_id],params[:city_id])
+    end
+  end
+
+  def client_asign
+    add_breadcrumb 'Asignacion de Equipos', 'client_asign_equips_path'
+    @clients = Client.all
+    @equips_unasigned = Equip.unasigned_clients
+  end
+
+  def create
+    @countries = Country.all
+    create! do |success, failure|
+      success.html { 
+	flash[:notice] = "Equipo creado con exito."
+	redirect_to equips_url 
+      }
+    end
+  end
+
+  def update
+    update! do |success, failure|
+      success.html { 
+	flash[:notice] = "Equipo editado con exito."
+	redirect_to equips_url 
+      }
+    end
+  end
+
+  def set_group
+    @equip = Equip.find(params[:equip_id])
+    @equip.group = Group.find(params[:group_id])
+    @equip.save
+  end
+
+  def all
+    add_breadcrumb 'Listado de Equipos', 'equips_path'
+    @equips = Equip.all
+    render :index
+  end
+
+  def unasigned
+    add_breadcrumb 'Listado de Equipos', 'equips_path'
+    @equips = Equip.unasigned
+    render :index
+  end
+
+  def asigned
+    add_breadcrumb 'Listado de Equipos', 'equips_path'
+    @equips = Equip.asigned
+    render :index
+  end
+
+  def search
+    add_breadcrumb 'Busqueda', ''
+    @equips = Equip.search(params[:search])
+    if @equips.empty?
+      flash[:notice] = "No hay resultados con ese criterio de busqueda."
+    end
+    render :index
+  end
+
+  def get_report
+    @errors = []
+    unless params[:behavior][:equip_id].nil?
+      campaign = Client.find(params[:behavior][:client_id]).get_campaign(params[:behavior][:equip_id])
+      date     = Report.format_date_search(params[:behavior][:date])
+      equip    = params[:behavior][:equip_id]
+      event_type = params[:report_detail][:event_type]
+      @reports = Report.get_report(campaign.id, date, equip, event_type)
+    else
+      @errors << "El equipo no esta definido. Debes seleccionar al menos un Equipo."
+    end
+  end
+
+  def get_asigned_to_client
+    @equips = Equip.asigned_to_client(params[:client_id])
+  end
+
+end

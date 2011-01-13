@@ -1,0 +1,53 @@
+class Report < ActiveRecord::Base
+  belongs_to :playlist
+  belongs_to :equip
+  has_many :report_details
+
+  validates :date, :presence => true
+  validates :date, :uniqueness => { :scope => :playlist_id }
+
+  scope :date_range, lambda { |date_start,date_end| where("date BETWEEN ? AND ?",format_date_search(date_start),format_date_search(date_end)) }
+  scope :exists_report, lambda {|campaign_id,date| where("campaign_id = ? AND date = ?",campaign_id,date).limit(1)}
+  scope :where_date, lambda { |date| where("date = ?",date) }
+  scope :where_event_type, lambda { |event_type| joins(:report_details).where("report_details.type_event = ?",event_type) }
+
+  def date_format=(time_str)
+    self.date = Time.parse(time_str)
+  end
+
+  def date_format
+    date.strftime("%d-%m-%y")
+  end
+
+  def self.report_format_date(date)
+    day,month,year = date.split(/-/)
+    year + "/" + month + "/" + day
+  end
+
+  def have_new_records?(file)
+    if last_access.nil?
+      return true
+    end
+    if File.mtime(file).to_i > last_access.to_i 
+      return true
+    else
+      return false
+    end
+  end
+
+  def set_log(equip_id)
+    ReportLog.create(:equip_id => equip_id,:report_id => self.id)
+  end
+  
+  protected
+
+  def self.format_date_search(date)
+    day,month,year = date.split("/")
+    year + "/" + month + "/" + day
+  end
+
+  def self.find_log(params)
+    @report = Report.find_by_playlist_and_date(params[:playlist_id], params[:date])
+
+  end
+end

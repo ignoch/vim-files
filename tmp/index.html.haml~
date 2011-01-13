@@ -1,0 +1,35 @@
+%ul.status
+  %li
+    = link_to "Todos", campaigns_path 
+  %li
+    = link_to "Sin asignar", unasigned_campaigns_path
+  %li
+    = link_to "Asignadas", asigned_campaigns_path
+%h1 Listado de Campañas
+
+- @campaigns.each do |campaign|
+  .unit.list
+    .container
+      %h3
+        - if can? :update, @campaign
+          = link_to campaign.name, edit_campaign_path(campaign)
+        - else
+          = campaign.name
+        %span.comments
+          -# if campaign.asigned
+            (Asignada)
+          -# else
+            (No Asignada)
+        .comments
+          %span.information
+            = image_tag 'icons/calendar.png', :class => 'icon'
+            %strong Inicio:
+            = campaign.date_start 
+          %span.information
+            = image_tag 'icons/calendar.png', :class => 'icon' 
+            %strong Fin:
+            = campaign.date_end
+          - unless campaign.client.nil?
+            %span.information
+              = image_tag 'icons/user.png', :class => 'icon' 
+              = campaign.client.name

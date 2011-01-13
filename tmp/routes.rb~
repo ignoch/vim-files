@@ -1,0 +1,274 @@
+ActionController::Routing::Routes.draw do |map|
+
+  # Authlogic routes
+  map.resources :user_sessions
+  map.resources :password_resets, :only => [ :new, :create, :edit, :update ]
+  map.logout 'logout', :controller => 'user_sessions', :action => :destroy
+
+  # New account route
+  map.resource :account, :controller => "people"
+
+  # Profile routes
+  map.edit_profile 'profile/edit', :controller => 'people', :action => :edit
+
+  map.profile_interests 'profile/interests', :controller => 'interests', :action => :index, :conditions  => { :method => :get }
+  map.profile_interests 'profile/interests', :controller => 'interests', :action => :update, :conditions  => { :method => :put }
+
+  map.profile_businesses 'profile/businesses', :controller => 'businesses', :action => :index
+  map.office_businesses 'office/businesses', :controller => 'businesses', :action => :my_businesses
+
+  map.resources :connections, :only => [:index, :create, :destroy], :collection => { :search => :get, :get_contacts => :get }, :has_many => :contact_tags
+  map.resources :connection_requests, :member => { :accept => :get, :reject => :get }
+
+  map.contact_by_tag 'connections/:tag_name', :controller => 'connections', :action => 'find_by_tag', :requirements => { :tag_name => /([a-z]|[0-9]|-)+/ }
+  map.add_contacts_to_tag 'connections/:tag_name/add', :controller => 'connections', :action => 'add_to_tag', :requirements => { :tag_name => /([a-z]|[0-9]|-)+/ }
+  map.remove_contacts_from_tag 'connections/:id/:tag_name/remove', :controller => 'connections', :action => 'remove_tag', :requirements => { :tag_name => /([a-z]|[0-9]|-)+/ }
+  # Favorite Tags
+  map.favorites_by_tag 'favorites/:tag_name', :controller => 'favorites', :action => 'find_by_tag', :conditions => { :method => :get }, :requirements => { :tag_name => /([a-z]|[0-9]|-)+/ }
+  map.add_favorites_to_tag 'favorites/:tag_name/add', :controller => 'favorites', :action => 'add_to_tag', :conditions => { :method => :post }, :requirements => { :tag_name => /([a-z]|[0-9]|-)+/ }
+  map.remove_favorite_from_tag 'favorites/:id/:tag_name/remove', :controller => 'favorites', :action => 'remove_tag', :conditions => { :method => :delete }, :requirements => { :tag_name => /([a-z]|[0-9]|-)+/ }
+  #Suggestions
+  map.suggestions 'suggestions', :controller => 'people', :action => 'suggestions', :conditions => { :method => :get}
+  # Net Search
+  map.search 'search', :controller => 'net_search', :action => 'index', :conditions => { :method => :get}
+  # Disable And Close User Account
+  map.user_disable_account 'disable/:token', :controller => 'people', :action => 'disable', :conditions => { :method => :get }
+  map.user_enable_account 'enable/:token', :controller => 'people', :action => 'enable', :conditions => { :method => :get }
+  map.user_close_account 'close/:token', :controller => 'people', :action => 'close', :conditions => { :method => :get }
+  # Business Time Line
+  map.recent_business 'recent_business', :controller => 'businesses', :action => 'recent_business', :conditions => { :method => :get }
+
+  map.resources :favorites, :only => [:index, :show, :create, :destroy]
+  map.resources :favorite_tags, :only => [:create, :destroy]
+
+  # People profile
+  map.resources :people, :only => [:create, :show, :edit, :update], :member => { :desktop => :get , :update_message => :put, :create_thumbnail => :post } do |people|
+    people.resources :connections, :collection => { :invite => :get, :common_contacts => :get }, :member => {}
+    people.resources :interests
+    people.resources :messages do |messages|
+      messages.resources :activities
+      messages.resources :comments
+    end
+    people.resources :emails, :collection => { :draft => :post, :send_to_trash => :put, :get_sent => :get, :get_draft => :get, :get_trash => :get, :remove_sent => :put, :search => :get, :flag_as => :post, :spam => :get, :manage_spam => :post}, :member => {:respond => :get, :forward => :get, :send_draft => :put, :create_recipient => :post, :send_forward => :put } do |emails|
+      emails.resources :comments, :only => [:create, :new]
+    end
+    people.resources :email_tags, :collection => { :add_emails => :post, :move_emails => :post, :delete_emails => :delete, :remove_from_trash => :post }
+    people.resources :companies, :member => {:desktop => :get} do |companies|
+      companies.resources :messages do |messages|
+        messages.resources :comments
+      end
+    end
+    people.resources :freelances, :member => {:desktop => :get} do |freelances|
+      freelances.resources :messages do |messages|
+        messages.resources :comments
+      end
+    end
+    people.resources :reports
+    people.resources :employees
+#    people.resources :contact_imports, :only => [:new, :create, :edit, :update]
+    people.resources :photos, :collection => { :preview => :post }
+    people.resources :contact_tags
+#    people.resources :chats, :only => [:index, :show], :member => { :comments_this_week => :get, :comments_this_month => :get, :comments_two_months => :get, :comments_three_months => :get, :comments_all => :get } do |chats|
+#      chats.resources :syntheses, :only => [:index, :create, :destroy]
+#    end
+    people.resources :recomendations, :only => [:index, :show, :create, :destroy],
+      :collection => { :view_more_recomendations => :get, :view_more_businesses => :get }
+    # people.resources :favorites, :only => [:index, :show, :create, :destroy]
+    # people.resources :favorite_tags, :only => [:create, :destroy]
+  end
+
+  map.resources :invitations do |invitations|
+   invitations.resources :guests, :only => [:new, :create, :destroy]
+  end
+
+  map.resources :contacts, :only => [:index, :create, :update, :destroy], :collection => { :search => :get, :get_contacts => :get }
+
+  map.resources :freelances, :member => { :desktop => :get }
+
+#  map.company_chats_with '/companies/:company_id/chats/with/:id', :controller => 'chats', :action => 'with'
+#  map.freelance_chats_with '/freelances/:freelance_id/chats/with/:id', :controller => 'chats', :action => 'with'
+#  map.person_chats_with '/people/:person_id/chats/with/:id', :controller => 'chats', :action => 'with'
+
+#                         , :has_many => [:promotions]
+  map.resources :companies, :has_many => [:business_lines], :has_one => :franchise, :member => { :desktop => :get, :update_workers => :put, :routes => :get }, :new => { :locate => :post } do |companies|
+    companies.resources :co_owners, :only => [:create, :destroy], :collection => { :search_contacts => :get, :invite => :post, :generate_invitation => :get, :invite_co_owners => :get }
+    companies.resources :assistants, :only => [:create, :destroy], :collection => { :search_contacts => :get, :invite => :post, :generate_invitation => :get, :invite_assistants => :get }
+    companies.resources :workers, :only => [:create, :destroy], :collection => { :search_contacts => :get, :invite => :post, :generate_invitation => :get, :invite_workers => :get }
+    companies.resources :messages do |messages|
+      messages.resources :comments
+    end
+    companies.resources :reports
+    companies.resources :photos , :only => [:create, :destroy], :member => { :upload => :post }
+    companies.resources :emails, :collection => { :draft => :post, :send_to_trash => :put, :get_sent => :get, :get_draft => :get, :get_trash => :get, :remove_sent => :put, :search => :get, :flag_as => :post, :spam => :get, :manage_spam => :post}, :member => {:respond => :get, :forward => :get, :send_draft => :put, :create_recipient => :post, :send_forward => :put}  do |emails|
+      emails.resources :comments, :only => [:create, :new]
+    end
+    companies.resources :email_tags, :collection => { :add_emails => :post, :move_emails => :post, :delete_emails => :delete, :remove_from_trash => :post }
+#    companies.resources :chats, :only => [:index, :show], :member => { :comments_this_week => :get, :comments_this_month => :get, :comments_two_months => :get, :comments_three_months => :get, :comments_all => :get } do |chats|
+#      chats.resources :syntheses, :only => [:index, :create, :destroy]
+#    end
+    companies.resources :videos, :only => [:create, :show, :destroy]
+    companies.resources :recomendations, :only => [:create]
+    companies.resources :favorites, :only => [:create]
+  end
+
+#  map.resources :messages do |messages|
+#    messages.resources :comments do |comments|
+#      comments.resources :activities
+#    end
+#  end
+
+#   map.resources :people, :member => { :desktop => :get } do |people|
+#     people.resources :interests
+#     people.resources :businesses, :collection => { :select_category => :get }
+# #    people.resources :companies, :has_many => :promotions
+#     people.resources :companies
+#     people.resources :freelances
+#     people.resources :employees
+#   end
+
+  map.resources :employees
+#                          , :has_many => [:promotions]
+  map.resources :freelances, :new => { :locate => :post } do |freelances|
+    freelances.resources :messages do |messages|
+      messages.resources :comments
+    end
+#    freelances.resources :chats, :only => [:index, :show], :member => { :comments_this_week => :get, :comments_this_month => :get, :comments_two_months => :get, :comments_three_months => :get, :comments_all => :get } do |chats|
+#      chats.resources :syntheses, :only => [:index, :create, :destroy]
+#    end
+    freelances.resources :videos, :only => [:create, :show, :destroy]
+    freelances.resources :recomendations, :only => [:create]
+    freelances.resources :favorites, :only => [:create]
+  end
+
+  map.resources :freelances, :member => { :become_fan => :post}
+  map.resources :companies, :member => { :become_fan => :post}
+
+  map.resources :directory, :only => [:index], :collection => { :locate => :get, :list => :get, :find_states => :get, :find_cities => :get, :search => :get }
+  map.resources :privacy_policies
+
+  map.resources :freelances do |freelances|
+    freelances.resources :emails, :collection => { :draft => :post, :send_to_trash => :put, :get_sent => :get, :get_draft => :get, :get_trash => :get, :remove_sent => :put, :search => :get, :flag_as => :post, :spam => :get, :manage_spam => :post}, :member => {:respond => :get, :forward => :get, :send_draft => :put, :create_recipient => :post, :send_forward => :put}  do |emails|
+      emails.resources :comments, :only => [:create, :new]
+    end
+    freelances.resources :reports
+    freelances.resources :email_tags, :collection => { :add_emails => :post, :move_emails => :post, :delete_emails => :delete, :remove_from_trash => :post}
+    freelances.resources :photos , :only => [:create,:destroy]
+  end
+
+  map.resources :users
+  map.resources :news, :only => :index, :collection => { :alerts => :get }
+
+#  map.resources :chats, :only => [], :collection => { :login => :post, :logout => :post, :send_data => :post, :recent_comments => :get }, :member => { :load_comments => :get }
+
+#	map.resources :countries, :has_many => :states
+#  map.resources :states, :has_many => :cities
+
+  map.resources :entries, :collection => { :search => :get }, :member => { :subentries => :get, :add_subentry => :post, :related_sectors => :get }
+
+  map.resources :countries do |country|
+    country.resources :cities, :collection => { :search => :get }
+    country.resources :states do |state|
+      state.resources :cities do |city|
+				city.resources :zip_codes do |zip_code|
+			  	zip_code.resources :districts
+				end
+			end
+		end
+  end
+
+  map.resources :cities, :collection => { :search => :get } do |city|
+    city.resources :zip_codes, :collection => { :search => :get } do |zip_code|
+      zip_code.resources :districts, :collection => { :search => :get }
+    end
+    city.resources :districts, :collection => { :search => :get }
+  end
+
+  map.resources :businesses, :member => { :routes => :get }
+  map.routes_from '/businesses/:business_id/routes/from/:id', :controller => 'businesses', :action => 'route_from'
+
+  map.resources :activities
+
+  map.resources :comments, :has_many => :activities
+
+  map.resources :political_views
+  map.resources :religious_views
+
+  map.resources :sectors, :has_many => :categories
+  map.resources :categories, :collection => { :search => :get }
+
+  map.resources :photos, :only => [:edit, :update], :collection => { :preview => :post }
+
+  map.activate '/activate/:activation_code', :controller => 'activations', :action => 'show'
+  map.directory '/directory', :controller => 'news', :action => 'index'
+  map.office '/office', :controller => 'people', :action => 'desktop', :conditions => { :method => :get }
+
+  map.root :controller => "news", :action => "index"
+
+#  map.resources :promotions, :only => [:index]
+
+  map.resources :polls , :collection => {:respond_poll => :post}, :member => {:get_results => :get}  do |polls|
+    polls.resources :questions do |questions|
+      questions.resources :answers
+    end
+  end
+
+  map.resources :configuration, :only => [:index]
+  map.namespace :admin do |admin|
+    admin.root :controller => :dashboard, :action => :index
+    admin.resources :polls
+    admin.resources :entries
+    admin.resources :users
+    admin.resources :reports
+    admin.resources :report_types
+  end
+
+  map.resources :preferences, :only => [:index, :create, :update],
+    :collection => {
+      :search_blockeds => :get, :add_blocked => :post, :remove_blocked => :delete,
+      :disable_account => :post, :close_account => :post
+    }
+
+  map.resources :terms_and_conditions, :only => :index
+  # The priority is based upon order of creation: first created -> highest priority.
+
+  # Sample of regular route:
+  #   map.connect 'products/:id', :controller => 'catalog', :action => 'view'
+  # Keep in mind you can assign values other than :controller and :action
+
+  # Sample of named route:
+  #   map.purchase 'products/:id/purchase', :controller => 'catalog', :action => 'purchase'
+  # This route can be invoked with purchase_url(:id => product.id)
+
+  # Sample resource route (maps HTTP verbs to controller actions automatically):
+  #   map.resources :products
+
+  # Sample resource route with options:
+  #   map.resources :products, :member => { :short => :get, :toggle => :post }, :collection => { :sold => :get }
+
+  # Sample resource route with sub-resources:
+  #   map.resources :products, :has_many => [ :comments, :sales ], :has_one => :seller
+
+  # Sample resource route with more complex sub-resources
+  #   map.resources :products do |products|
+  #     products.resources :comments
+  #     products.resources :sales, :collection => { :recent => :get }
+  #   end
+
+  # Sample resource route within a namespace:
+  #   map.namespace :admin do |admin|
+  #     # Directs /admin/products/* to Admin::ProductsController (app/controllers/admin/products_controller.rb)
+  #     admin.resources :products
+  #   end
+
+  # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
+  # map.root :controller => "welcome"
+
+  # See how all your routes lay out with "rake routes"
+
+  # Install the default routes as the lowest priority.
+  # Note: These default routes make all actions in every controller accessible via GET requests. You should
+  # consider removing or commenting them out if you're using named routes and resources.
+  # map.connect ':controller/:action/:id'
+  # map.connect ':controller/:action/:id.:format'
+end
+

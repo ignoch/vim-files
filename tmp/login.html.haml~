@@ -1,0 +1,90 @@
+!!!
+%html{:xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en", :lang => "en"}
+%head
+  %title Folgom
+  %meta{"http-equiv"=>"Content-Type", :content=>"text/html; charset=utf-8"}
+  = stylesheet_link_tag 'compiled/screen.css', :media => 'screen, projection'
+  = stylesheet_link_tag 'compiled/print.css', :media => 'print'
+  = stylesheet_link_tag 'compiled/application.css', :media => 'screen, projection'
+  /[if lt IE 8]
+    = stylesheet_link_tag 'compiled/ie.css', :media => 'screen, projection'
+
+%body.bp
+
+  #wrapper.login
+
+    #container
+      #logo
+        .logo-image
+
+        .message.center
+          = yield :message
+
+      .fields
+        = render :partial => '/user_sessions/new'
+
+    #message-container
+      = flash_messages
+
+    #login-container
+      .login-container-left
+        .slogan
+          = t('new_login.slogan')
+
+        .recent-business
+          = t('new_login.recent_business')
+
+        %ul#login-timeline-business{'data-source' => recent_business_path}
+          = render :partial => '/businesses/recent_login', :collection => @businesses,
+            :locals => {:classes => nil}
+
+      .fields-register
+
+        .benefits-title
+          = t('new_login.some_benefits.title')
+
+        .benefits.first
+          = t('new_login.some_benefits.first')
+        .benefits.second
+          = t('new_login.some_benefits.second')
+        .benefits.third
+          = t('new_login.some_benefits.third')
+        .clearBoth
+        #data-container
+          #registration
+            .register-title
+              = t('new_login.register.title')
+            = render :partial => '/people/new'
+
+          #flash-video
+            .benefits-title
+              %p Si no eres usuario
+              %a{ :href=>"#", :class => "hide_video"} 
+                %span Registrate aquí
+              %p es gratis!
+              %object{ :style => "height: 281px; width: 480px" }
+                %param{ :name => "movie", :value=>"http://www.youtube.com/v/5LcyvDl9Dgk?version=3" }
+                %param{ :name => "allowFullScreen", :value => "true" }
+                %param{ :name => "allowScriptAccess", :value=>"always" }
+                %param{ :name => "wmode", :value => "transparent" }
+                %embed{ :src => "http://www.youtube.com/v/5LcyvDl9Dgk?version=3", :type=>"application/x-shockwave-flash", :allowfullscreen=>"true", :allowScriptAccess=>"always", :wmode => "transparent", :width=>"480", :height=>"281"}
+        .clearBoth
+
+
+=# javascript_include_tag 'jquery.min'
+= javascript_include_tag 'https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'
+= javascript_include_tag 'jquery-ui.min'
+= javascript_include_tag 'jquery.placeholder'
+= javascript_include_tag 'jquery.fcbkcomplete'
+= javascript_include_tag 'jquery.livequery'
+= javascript_include_tag 'jquery.fancybox.pack'
+= javascript_include_tag 'easySlider1.7'
+= javascript_include_tag 'jquery.lightbox.min'
+= javascript_include_tag 'jquery.tools.min'
+= javascript_include_tag 'jquery.form'
+= javascript_include_tag 'jquery.timers'
+= javascript_include_tag 'IEffembedfix.jQuery'
+= javascript_include_tag 'agilekoding'
+= javascript_include_tag 'login'
+= javascript_include_tag 'application'
+= render :partial => '/layouts/ga_script'

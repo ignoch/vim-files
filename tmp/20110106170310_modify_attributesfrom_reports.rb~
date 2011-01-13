@@ -1,0 +1,12 @@
+class ModifyAttributesfromReports < ActiveRecord::Migration
+  def self.up
+    remove_column :reports, :campaign_id
+    add_column :reports, :playlist_id, :integer
+    add_index :reports, :playlist_id
+  end
+
+  def self.down
+    add_column :reports, :campaign_id, :integer
+    remove_column :reports, :playlist_id
+  end
+end

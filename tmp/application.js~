@@ -1,0 +1,131 @@
+$(function(){
+    var config = {    
+         sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)    
+         interval: 200,  // number = milliseconds for onMouseOver polling interval    
+         over: doOpen,   // function = onMouseOver callback (REQUIRED)    
+         timeout: 200,   // number = milliseconds delay before onMouseOut    
+         out: doClose    // function = onMouseOut callback (REQUIRED)    
+    }
+    
+    function doOpen() {
+        $(this).addClass("hover")
+        $('ul:first',this).css('display', 'block')
+    }
+ 
+    function doClose() {
+        $(this).removeClass("hover")
+        $('ul:first',this).css('display', 'none')
+    }
+
+    $("ul.dropdown li").hoverIntent(config)
+    
+    $(".datepick").datepicker(
+	{ dateFormat: 'dd/mm/yy' }
+    )
+
+    $('#list-control .left-arrow').click(function() {
+      return !$('.unasigned option:selected').remove().appendTo('.asigned')
+
+    })
+    $('#list-control .right-arrow').click(function() {
+      return !$('.asigned option:selected').remove().appendTo('.unasigned')
+    })
+    
+    $('#agrupa-seleccionados').click(function() {
+      return !$('.unasigned option:selected').remove().appendTo('.asigned')
+    })
+    
+    $('#libera-seleccionados').click(function() {
+      return !$('.asigned option:selected').remove().appendTo('.unasigned')
+    })
+
+    $doFields = function add_fields(container, association, content) {
+	  var new_id = new Date().getTime();
+	  var regexp = new RegExp("new_" + association, "g");
+	  raw = container.split(' ')
+	  $(container).before(content.replace(regexp, new_id));
+    }
+    
+    $remFields = function remove_fields(link) {
+      $(link).prev(".destroy").val("1");
+      $(link).closest(".fields").hide();
+    }
+
+    $('#serial').jqm();
+
+    $('#serial_pais').change(function(){
+      var url = '/states/get_from_country'
+      data = { country_id : $(this).val() }
+      $.post(url,data,function(response){})
+    })
+
+    $('#serial_estado').change(function(){
+	var url = '/cities/get_from_state'
+	data = { state_id : $(this).val() }
+	$.post(url, data, function(){})
+    })
+
+    $('#serial_button').click(function(){
+      var csrf_token = $('meta[name=csrf-token]').attr('content'),
+          csrf_param = $('meta[name=csrf-param]').attr('content');
+      var cad    = "SH2"
+      var pais   = $('#serial_pais option:selected').val()
+      var estado = $('#serial_estado option:selected').val()
+      var ciudad = $('#serial_ciudad option:selected').val()
+      data = {
+        country_id : pais,
+        state_id : estado,
+        city_id : ciudad
+      }
+      $.get('/equips/get_last_serial', data, function(response){})
+    })
+
+    $('#campaign_id').change(function(){
+      var campaign_id = $(this).attr("value")
+      var url         = '/campaigns/get_groups_asigned'
+      $.post(url,{campaign_id:campaign_id})
+    })
+
+    $('#client_id').change(function(){
+      var client_id = $(this).attr('value')
+      if (client_id != "") {
+	var url = '/clients/'+client_id+'/get_equips'
+	$.get(url,{client_id:client_id})
+      } else {
+	$('#equips_asigned option').empty();
+      }
+    })
+
+    $('#behavior_client_id').change(function(){
+      var client_id = $(this).attr('value')
+      var url = '/equips/get_asigned_to_client'
+      $.get(url,{client_id:client_id})
+    })
+
+    $('#form_campaign_equip_asign, #form_client_equip_asign, #new_group, .edit_group').submit(function(){
+	  $('.asigned option').each(function(i){
+		$(this).attr("selected","selected")    
+	  })	
+	  $('.unasigned option').each(function(i){
+		$(this).attr("selected","selected")    
+	  })
+	})
+	
+	//---------------------------------
+	
+	$("#new_client").submit(function(){
+		$("#user_name").val($("#client_name").val())
+	})
+	
+    $('#select_all').live("click",function(){
+      var checkboxs = $('.days').find('input[type="checkbox"]')        
+      $.each(checkboxs, function(){
+        $(this).attr('checked',true)  
+      })
+    })
+
+    $("input.require").append(
+      $('span').txt("*");
+    );
+
+});

@@ -1,0 +1,62 @@
+#errors.error
+= form_for([playlist,campaign_item], :html => {:multipart => true, :remote => true}) do |f|
+  %div.fields.columns.same-height.on-4
+    #image.column.fixed.span-2
+      .image-preview
+        - unless f.object.image_file_name.nil?
+          = image_tag f.object.image.url(:small)
+      .image-data
+        .seconds
+          = f.text_field :duration_transition, { :class => "small"}
+          segs
+        .transition
+          = f.select :type_transition, CampaignItem.type_transitions.collect {|t| [t.last,t.first] }, :class => "left"
+      .image-add.clear
+        = f.file_field :image
+    .date-start.column.fixed
+      = f.label :time_start_field, "Hora inicio"
+      = f.text_field :time_start_field, {:class => "medium"}
+      hrs.
+      %p
+        %small (HH:MM)
+    .date-end.column.fixed
+      = f.label :time_end, "Hora fin"
+      = f.text_field :time_end_field, {:class => "medium"}
+      hrs.
+      %p
+        %small (HH:MM)
+    .column.week
+      %table.days
+        %tr
+          %th D
+          %th L
+          %th M
+          %th Mi
+          %th J
+          %th V
+          %th S
+        %tr
+          %td= f.check_box :sunday
+          %td= f.check_box :monday
+          %td= f.check_box :tuesday
+          %td= f.check_box :wednesday
+          %td= f.check_box :thursday
+          %td= f.check_box :friday
+          %td= f.check_box :saturday
+      .unit
+        %a{:href => "#", :id => "select_all", :style=> "position:relative;"} toda la semana
+      .unit
+        = f.label :campaign_id
+        = collection_select(:campaign_item, :campaign_id, Campaign.all, :id, :name, :prompt => true)
+  .columns.on-3.buttons
+    = f.hidden_field :visual_scope 
+    .column
+      = content_tag :button, :type => :submit do
+        = image_tag "icons/book.png"
+        Guardar Cambios
+    .column
+      = link_to "Cancelar", "#", :class=>"bClose"
+    - unless campaign_item.new_record?
+      .column
+        = link_to 'Eliminar Imagen', playlist_campaign_item_path(playlist), :confirm => "Are you sure?", :method => :delete, :remote => true
+

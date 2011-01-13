@@ -1,0 +1,12 @@
+class PlaylistsController < InheritedResources::Base
+  layout 'dashboard'
+  add_breadcrumb 'Playlists', 'playlists_path'
+
+  def create
+    create!(:notice => "Playlist creado con exito")
+  end
+
+  def update
+    update!(:notice => "Playlist modificado con exito")
+  end
+end

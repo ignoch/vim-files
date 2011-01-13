@@ -1,0 +1,58 @@
+class Campaign < ActiveRecord::Base
+  attr_accessible :name, :date_start, :date_end, :client_id  
+  belongs_to :client
+  has_many :campaign_items
+  has_many :external_items, :class_name => "CampaignItem", :conditions => {:visual_scope => ItemStatus::EXTERIOR } 
+  
+  
+  
+  has_many :internal_items, :class_name => "CampaignItem", :conditions => {:visual_scope => ItemStatus::INTERIOR } 
+  has_many :cargador_items, :class_name => "CampaignItem", :conditions => {:visual_scope => ItemStatus::CARGADOR }
+  
+  validates :name, :date_start, :date_end, :presence => true
+  validate :date_start_cannot_be_less_than_date_end
+  validate :cannot_add_past_dates_from_today
+
+  scope :search, lambda { |term|
+    where("name LIKE '%#{term}%'")
+  }
+
+  scope :unasigned, lambda {
+    where("client_id IS NOT NULL")
+  }
+
+  scope :asigned, lambda {
+   where("client_id IS NULL")
+  }
+
+  def self.num_asigned
+    Campaign.joins(:equips).count 
+  end
+
+  def self.num_unasigned
+    Campaign.find_by_sql("SELECT COUNT(*) AS num_unasigned FROM campaigns WHERE id NOT IN (SELECT campaigns.id FROM `campaigns` INNER JOIN `equips` ON `equips`.`campaign_id` = `campaigns`.`id`)").first.num_unasigned
+  end
+
+  def self.num_campaigns
+    Campaign.all.count
+  end
+
+  def num_images(visual_scope)
+    CampaignItem.num_images(self.id,visual_scope)
+  end
+
+  def cannot_add_past_dates_from_today
+    errors.add(:date_end,"no puede ser agregada con una fecha pasada") if !date_end.blank? and date_end <= (Date.today - 1.day)
+  end
+
+  def date_start_cannot_be_less_than_date_end
+    errors.add(:date_start,"no puede ser menor que la hora de termino") if !date_start.blank? and !date_end.blank? and date_start > date_end 
+  end
+
+  protected
+
+  def set_update_time
+    self.last_update = Time.now
+    self.save
+  end
+end

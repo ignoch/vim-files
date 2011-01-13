@@ -1,0 +1,2 @@
+page[".popup .content"].html(render "campaign_item_fields", :campaign => @campaign, :campaign_item => @campaign_item)
+page[".popup h5"].html("Agregar Imagen #{@type}")

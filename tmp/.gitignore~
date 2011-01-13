@@ -1,0 +1,16 @@
+.bundle
+db/*.sqlite3
+log/*.log
+log/*.pid
+tmp/**/*
+.DS_Store
+*.orig
+config/database.yml
+config/mongrel_cluster.yml
+config/juggernaut.yml
+config/juggernaut_hosts.yml
+config/sphinx.yml
+config/*.sphinx.conf
+db/sphinx/**/*
+public/system/*
+.rvmrc

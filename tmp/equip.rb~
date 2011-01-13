@@ -1,0 +1,135 @@
+class Equip < ActiveRecord::Base
+  belongs_to :group
+  has_many :report_logs
+
+  validates :serial, :uniqueness => true, :presence => true
+  require 'net/ftp'
+
+  scope :in_campaign, lambda {|campaign| where('campaign_id = ?', campaign) }
+  scope :search, lambda {|term|
+    joins(:group,:campaign).where("serial LIKE '%#{term}%' OR groups.name LIKE '%#{term}%' OR campaigns.name LIKE '%#{term}%'")
+  }
+  scope :asigned, lambda {
+    where("group_id IS NOT NULL")
+  }
+
+  scope :unasigned, lambda {
+   where("group_id IS NULL")
+  }
+  
+  def self.asigned_to_group(group_id)
+    Equip.where("group_id = ?",group_id)
+  end
+
+
+  def self.visual_scopes
+    options = Array.new
+    options << [0,"Exterior"]
+    options << [1,"Interior"]
+    options << [2,"Cargador"]
+    options 
+  end
+
+  def folio
+   arreglo = self.serial.split('-')
+   arreglo.last
+  end
+
+  def country
+   arreglo = self.serial.split('-')
+   country = Country.find_by_acronym(arreglo[1])
+   country.name
+  end
+
+  def state
+   arreglo = self.serial.split('-')
+   state = State.find_by_acronym(arreglo[2])
+   state.name
+  end
+
+  def city
+   arreglo = self.serial.split('-')
+   city = City.find_by_acronym(arreglo[3])
+   city.name
+  end
+
+  def campaign_name
+    self.campaign.name unless self.campaign.nil?
+  end
+  
+  def group_name
+    self.group.name unless self.group.nil?
+  end
+
+  def client_name
+    self.client.name unless self.client.nil?
+  end
+  
+  def is_asigned?
+    if !self.group.nil?
+      true
+    else
+      false
+    end
+  end
+
+  def upload_campaign
+    server = Configuration.last.server
+    username = self.ftp_user
+    password = self.ftp_password
+    home_dir = self.ftp_home
+
+    begin
+      ftp = Net::FTP.open(server)
+      ftp.login(username,password)
+      ftp.binary = true
+      ftp.debug_mode = false
+      ftp.chdir(home_dir)
+    rescue
+      raise "No se pudo conectar con los parametros asociados al Equipo #{self.serial}. Favor de verificar"
+    end
+
+    begin
+      playlist_data = Playlist.find(self.group.playlist_id)
+      playlist = PlaylistFile.new(playlist_data.name)
+    rescue
+      raise "No hay playlist asignado al grupo del equipo."
+    end
+
+    ItemStatus.scopes.each do |scope|
+      playlist.set_scope(scope)
+      next if playlist_data.is_updated?
+      begin
+        ftp.mkdir(File.basename(playlist.get_dir))
+        ftp.chdir(File.basename(playlist.get_dir))
+      rescue
+        ftp.chdir(File.basename(playlist.get_dir))
+      end
+      begin
+  	playlist.get_files.each do |file|
+	  ftp.putbinaryfile(file,File.basename(file))
+  	end
+  	ftp.chdir("..")
+        playlist_data.last_update = true
+        playlist_data.save
+      rescue
+        raise "Equipo {self.serial}. Error al crear directorios y archivos"
+      end
+    end
+    
+    # Cargando los registros
+    begin  
+      playlist.set_reports
+      ftp.chdir(home_dir)
+      ftp.chdir(File.basename(playlist.get_dir))
+      reports = ftp.nlst(".")
+      reports.each do |file|  
+        ftp.getbinaryfile(file,"#{playlist.get_dir}/#{file}")
+      end
+    rescue
+      raise "No se pudo traer los registro del Equipo"
+    end
+    ftp.close
+  end
+
+end

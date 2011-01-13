@@ -1,0 +1,100 @@
+/%p 
+/ Campaña: 
+/  %strong= campaign.name
+/%h1
+/  = "Externas: #{campaign.num_external_images}" 
+/#externas
+/  %table.blue-table
+/    %thead
+/      %tr
+/        %th
+/          Imagen
+/        %th
+/          Duracion (segs)
+/        %th
+/          Despliege
+/        %th
+/          Hr. Inicio
+/        %th
+/          Hr. Fin
+/        %th
+/          Frecuencia
+/    %tfoot
+/    %tbody 
+/%h1
+/  = "Internas: #{campaign.num_internal_images}"
+/
+/#internas
+/  %table.blue-table
+/    %thead
+/      %tr
+/        %th
+/          Imagen
+/        %th
+/          Duracion (segs)
+/        %th
+/          Despliege
+/        %th
+/          Hr. Inicio
+/        %th
+/          Hr. Fin
+/        %th
+/          Frecuencia
+/    %tfoot
+/    %tbody
+/%h1
+/  = "Cargador: #{campaign.num_cargador_images}"
+/#cargador
+/  %table.blue-table
+/    %thead
+/      %tr
+/        %th
+/          Imagen
+/        %th
+/          Duracion (segs)
+/        %th
+/          Despliege
+/        %th
+/          Hr. Inicio
+/        %th
+/          Hr. Fin
+/        %th
+/          Frecuencia
+/    %tfoot
+/    %tbody
+/%h1
+/  Equipos Asignados:
+/  = @equips.count
+/#equips.columns.on-1
+/%hr/
+%table.blue-table
+  %thead
+    %tr
+      %th
+        Campaña
+      %th
+        Cliente
+      %th
+        Inicio
+      %th
+        Fin
+      %th
+        = "# imag interior"
+      %th
+        = "# imag exterior"
+      %th
+        = "# imag cargador"
+  %tfoot
+  %tbody
+    = render :partial => 'simple_campaign', :object => @campaign
+.unit
+  .container
+    %h2 Imagenes externas
+    #externas.columns.on-6.content
+    %hr/
+    %h2 Imagenes internas
+    #externas.columns.on-6.content
+    %hr/
+    %h2 Imagenes cargador
+    #externas.columns.on-6.content
+    %hr/

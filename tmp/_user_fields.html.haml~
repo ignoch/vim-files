@@ -1,0 +1,11 @@
+.column.field.span-2
+  %span{:class => "required"} *
+  = f.label :email
+  = f.text_field :email
+.column.field 
+  %span{:class => "required"} *
+  = f.label :password
+  = f.password_field :password
+.column.field
+  = f.label :password_confirmation
+  = f.password_field :password_confirmation
