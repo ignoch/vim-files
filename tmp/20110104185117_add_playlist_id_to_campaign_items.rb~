@@ -1,9 +1,0 @@
-class AddPlaylistIdToCampaignItems < ActiveRecord::Migration
-  def self.up
-    add_column :campaign_items, :playlist_id, :integer
-  end
-
-  def self.down
-    remove_column :campaign_items, :playlist_id
-  end
-end

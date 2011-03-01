@@ -1,9 +1,0 @@
-development:
-  adapter: mysql
-  encoding: utf8
-  reconnect: false
-  database: folgom_development
-  pool: 5
-  username: root
-  password: 12red
-  socket: /tmp/mysql.sock

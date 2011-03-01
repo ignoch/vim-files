@@ -10,8 +10,8 @@ set nu
 set ea
 filetype plugin indent on
 set gfn=Inconsolata\ Medium\ 11
-set softtabstop=2
-set shiftwidth=2
+set softtabstop=4
+set shiftwidth=4
 set noexpandtab
 set mouse=a
 set backup
@@ -41,4 +41,24 @@ endif
 "endif
 "feel free to choose :set background=light for a different style
 set background=dark
-colors railscasts 
+colors railscasts
+
+"=== Maps de Teclado ======
+map! <silent> <F2> <C-O>:w<CR>
+map! <silent> <F3> <esc>:q<CR>
+map! <silent> <F4> <esc>:NERDTreeToggle<CR>i
+map! <silent> <F12> <esc>:ls<CR>:buffer<Space>
+
+nmap <silent> <F2> :w<CR>
+nmap <silent> <F3> :q<CR>
+nmap <silent> <F4> :NERDTreeToggle<CR>
+vmap <silent> <F5> :call NERDComment(1, "norm")<CR>
+vmap <silent> <F6> :call NERDComment(1, "uncomment")<CR>
+nmap <silent> <F12> :ls<CR>:buffer<Space>
+
+nnoremap <c-j> :m+<CR>==
+nnoremap <c-k> :m-2<CR>==
+inoremap <c-j> <Esc>:m+<CR>==gi
+inoremap <c-k> <Esc>:m-2<CR>==gi
+vnoremap <c-j> :m'>+<CR>gv=gv
+vnoremap <c-k> :m-2<CR>gv=gv

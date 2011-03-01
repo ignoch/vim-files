@@ -1,6 +1,0 @@
-#search.clear
-  .title
-    Buscar
-  = form_tag(search_campaigns_path) do
-    %input{:type => "text", :name =>"search" }
-  .content

@@ -1,5 +1,0 @@
-page["#results"].html(render :partial => "campaign", :object => @campaign)
-page["#externas"].html(render :partial => "playlists/campaign_images", :collection => @campaign.external_items, :as => :campaign_item, :locals => {:playlist => nil})
-page["#internas"].html(render :partial => "playlists/campaign_images", :collection => @campaign.internal_items, :as => :campaign_item, :locals => {:playlist => nil})
-page["#cargador"].html(render :partial => "playlists/campaign_images", :collection => @campaign.cargado => :campaign_item, :locals => {:playlist => nil})
-page << "Elastic.refresh()"

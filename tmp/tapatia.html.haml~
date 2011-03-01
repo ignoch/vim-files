@@ -1,7 +1,0 @@
-#tapatia
-  %object{ :style => "height: 281px; width: 250px" }
-    %param{ :name => "movie", :value=>"#{root_url}images/empresatapatia-banner.swf" }
-    %param{ :name => "allowFullScreen", :value => "true" }
-    %param{ :name => "allowScriptAccess", :value=>"always" }
-    %param{ :name => "wmode", :value => "opaque" }
-    %embed{ :src => "#{root_url}images/empresatapatia-banner.swf", :type=>"application/x-shockwave-flash", :allowfullscreen=>"true", :allowScriptAccess=>"always", :wmode => "transparent", :width=>"250", :height=>"281"} 

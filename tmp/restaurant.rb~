@@ -1,9 +1,0 @@
-class Restaurant < ActiveRecord::Base
-  has_many :groups
-  validates :name, :address, :rfc, :presence => true
-  validates :email, :format => { :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i }, :unless => "email.nil?"
-  scope :search, lambda { |term|
-    where("name LIKE '%#{term}%' OR address LIKE '%#{term}%' OR rfc LIKE '%#{term}%'")
-  }
-
-end

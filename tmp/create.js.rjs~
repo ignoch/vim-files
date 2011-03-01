@@ -1,6 +1,0 @@
-if @campaign.errors.any?
-  page << "$('#{escape_javascript render "errors_campaign"}').insertBefore('#form').delay(5000).fadeOut(500)"
-else
-  #se guardo bien, genera el form de edit
-  #page.redirect_to(edit_campaign_path(@campaign))
-end
