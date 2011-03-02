@@ -1,14 +1,15 @@
 call pathogen#runtime_append_all_bundles() 
+filetype off
+syntax on
+filetype plugin indent on
 set nocompatible
 set autoindent
 set smartindent
 set showmatch
 set virtualedit=all
-syntax on
 set ic
 set nu
 set ea
-filetype plugin indent on
 set gfn=Inconsolata\ Medium\ 11
 set softtabstop=4
 set shiftwidth=4
@@ -32,6 +33,9 @@ endif
          au BufRead,BufNewFile *.scss setf sass
    " }
    "
+" JQuery {
+    au BufRead,BufNewFile jquery.*.js, *.js set ft=javascript syntax=jquery
+" }
 " RVM {
    " set statusline+=%{rvm#statusline()}
     set statusline=[%n]\ %<%.99f\ %h%w%m%r%y%{exists('g:loaded_rvm')?rvm#statusline():''}%=%-16(\ %l,%c-%v\ %)%P

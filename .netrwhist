@@ -1,3 +1,9 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =1
-let g:netrw_dirhist_1='/home/ignoch/Projects/emap/app/views/buildings'
+let g:netrw_dirhist_cnt =7
+let g:netrw_dirhist_1='/home/ignoch/.vim/bundle/nerdtree'
+let g:netrw_dirhist_2='/home/ignoch/.vim/bundle'
+let g:netrw_dirhist_3='/home/ignoch/.vim'
+let g:netrw_dirhist_4='/home/ignoch'
+let g:netrw_dirhist_5='/home/ignoch/Rails/emap'
+let g:netrw_dirhist_6='/home/ignoch/Rails/emap/app'
+let g:netrw_dirhist_7='/home/ignoch/Rails/emap/app/controllers'
