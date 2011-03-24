@@ -16,7 +16,8 @@ set shiftwidth=4
 set noexpandtab
 set mouse=a
 set backup
-set backupdir=~/.vim/tmp
+set backupdir=~/.vim/backup
+set directory=~/.vim/tmp
 
 
 if has("autocmd")
@@ -38,8 +39,9 @@ endif
 " }
 " RVM {
    " set statusline+=%{rvm#statusline()}
-    set statusline=[%n]\ %<%.99f\ %h%w%m%r%y%{exists('g:loaded_rvm')?rvm#statusline():''}%=%-16(\ %l,%c-%v\ %)%P
+    set statusline=[%n]\ %<%.99f\ %h%w%m%r%y%{exists('g:loaded_rvm')?rvm#statusline():''}%=%-16(\ %l,%c-%v\ %)%P\ %{fugitive#statusline()}
 " }
+" GIT statusline
 "if ! has("gui_running")
     set t_Co=256
 "endif
