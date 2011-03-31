@@ -1,7 +1,9 @@
-call pathogen#runtime_append_all_bundles() 
+set nocompatible
+autocmd!
 filetype off
-syntax on
+call pathogen#runtime_append_all_bundles() 
 filetype plugin indent on
+syntax on
 set nocompatible
 set autoindent
 set smartindent
@@ -10,9 +12,9 @@ set virtualedit=all
 set ic
 set nu
 set ea
-set gfn=Inconsolata\ Medium\ 11
-set softtabstop=4
-set shiftwidth=4
+set gfn=Inconsolata\ Medium\ 10
+set softtabstop=2
+set shiftwidth=2
 set noexpandtab
 set mouse=a
 set backup
@@ -62,6 +64,8 @@ nmap <silent> <F12> :ls<CR>:buffer<Space>
 
 nnoremap <c-j> :m+<CR>==
 nnoremap <c-k> :m-2<CR>==
+nnoremap <c-f> :<c-u>FufFile **/<CR>
+nnoremap <c-b> :<c-u>FufBuffer **/<CR>
 inoremap <c-j> <Esc>:m+<CR>==gi
 inoremap <c-k> <Esc>:m-2<CR>==gi
 vnoremap <c-j> :m'>+<CR>gv=gv
