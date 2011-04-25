@@ -1,5 +1,5 @@
-set nocompatible
 autocmd!
+set nocompatible
 filetype off
 call pathogen#runtime_append_all_bundles() 
 filetype plugin indent on
@@ -75,6 +75,8 @@ nnoremap <c-j> :m+<CR>==
 nnoremap <c-k> :m-2<CR>==
 nnoremap <c-f> :<c-u>FufFile **/<CR>
 nnoremap <c-b> :<c-u>FufBuffer **/<CR>
+inoremap <F7> <esc> :sp<CR>
+inoremap <F8> <esc> :vsp<CR>
 inoremap <c-f> <esc> :<c-u>FufFile **/<CR>
 inoremap <c-b> <esc> :<c-u>FufBuffer **/<CR>
 inoremap <c-j> <Esc>:m+<CR>==gi
