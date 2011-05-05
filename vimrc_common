@@ -3,7 +3,9 @@ set nocompatible
 filetype off
 call pathogen#runtime_append_all_bundles() 
 filetype plugin indent on
+
 syntax on
+set encoding=utf-8
 set nocompatible
 set autoindent
 set smartindent
@@ -17,6 +19,7 @@ set softtabstop=2
 set shiftwidth=2
 set noexpandtab
 set mouse=a
+set bs=2
 set backup
 set backupdir=~/.vim/backup
 set directory=~/.vim/tmp
