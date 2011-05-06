@@ -86,3 +86,14 @@ inoremap <c-j> <Esc>:m+<CR>==gi
 inoremap <c-k> <Esc>:m-2<CR>==gi
 vnoremap <c-j> :m'>+<CR>gv=gv
 vnoremap <c-k> :m-2<CR>gv=gv
+
+"====== ZenCoding language behavior ==========
+let g:user_zen_expandabbr_key = '<c-e>'
+let g:user_zen_complete_tag = 1
+let g:user_zen_settings = {
+\  'indentation' : '  ',
+\  'haml' : {
+\    'filters' : 'haml',
+\    'extends' : 'html'
+\  }
+\}
