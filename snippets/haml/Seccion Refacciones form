@@ -1,0 +1,5 @@
+    = one_column  "Refacciones utilizadas" do
+      #accessories
+      = f.fields_for :order_accessories do |d|
+        = render :partial => 'shared/add_order_accessories', :locals => { :form => d }
+      = add_child_link_complex_form t('order_accessories.add_order'), f, :order_accessories, { :partial => 'shared/add_order_accessories', 'data-container' => '#accessories' }
