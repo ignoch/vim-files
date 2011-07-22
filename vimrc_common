@@ -51,6 +51,9 @@ endif
     set t_Co=256
     " Remove menu bar
     set guioptions-=m
+    " Rename tab name
+    set guitablabel=%!expand(\"\%:t\")
+    set showtabline=2
 
     " Remove toolbar
     set guioptions-=T
