@@ -58,9 +58,10 @@ endif
     " Remove toolbar
     set guioptions-=T
 "endif
+autocmd BufWritePre * :%s/\s\+$//e  " Delete whitespace at the end of the line
 "feel free to choose :set background=light for a different style
 set background=dark
-colors railscasts
+colors Tomorrow-Night-Bright
 
 "=== Maps de Teclado ======
 map! <silent> <F2> <C-O>:w<CR>
