@@ -1,7 +1,7 @@
 autocmd!
 set nocompatible
 filetype off
-call pathogen#runtime_append_all_bundles() 
+call pathogen#runtime_append_all_bundles()
 filetype plugin indent on
 
 syntax on
@@ -17,10 +17,12 @@ set ea
 set gfn=Inconsolata\ Medium\ 10
 set softtabstop=2
 set shiftwidth=2
+set tabstop=2
 set noexpandtab
 set mouse=a
 set bs=2
 set backup
+set nowrap
 set backupdir=~/.vim/backup
 set directory=~/.vim/tmp
 
@@ -33,8 +35,8 @@ endif
 
 " Ruby {
    " ruby standard 2 spaces, always
-         au BufRead,BufNewFile *.rb,*.rhtml,*.erb,*.haml set shiftwidth=2 
-         au BufRead,BufNewFile *.rb,*.rhtml,*.erb,*.haml set softtabstop=2 
+         au BufRead,BufNewFile *.rb,*.rhtml,*.erb,*.haml set shiftwidth=2
+         au BufRead,BufNewFile *.rb,*.rhtml,*.erb,*.haml set softtabstop=2
          au BufRead,BufNewFile *.haml setf haml
          au BufRead,BufNewFile *.scss setf sass
    " }
@@ -61,7 +63,7 @@ endif
 autocmd BufWritePre * :%s/\s\+$//e  " Delete whitespace at the end of the line
 "feel free to choose :set background=light for a different style
 set background=dark
-colors Tomorrow-Night-Bright
+colors railscasts
 
 "=== Maps de Teclado ======
 map! <silent> <F2> <C-O>:w<CR>
