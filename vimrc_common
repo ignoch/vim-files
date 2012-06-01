@@ -62,7 +62,30 @@ nmap <silent> <C-left> gT
     " Remove toolbar
     set guioptions-=T
 "endif
-autocmd BufWritePre * :%s/\s\+$//e  " Delete whitespace at the end of the line
+
+" Make the current window big, but leave others context
+" We have to have a winheight bigger than we want to set winminheight. But
+" if we set winheight to be huge before winminheight, the winminheight set will
+" fail.
+ set winheight=10
+ set winminheight=10
+ set winheight=999
+
+" Strip trailing white spaces before file is saved
+function! StripTrailingWhiteSpaces()
+ " Store the current position
+   let _s=@/
+   let l = line(".")
+   let c = col(".")
+   " Strip white spaces
+   %s/\s\+$//e
+   let @/=_s
+   call cursor(l,c)
+ endfunction
+
+autocmd BufWritePre *.md,*.js,*.rb,*.html,*.haml,*.erb,*.css,*.sass,*.coffee,*.yml call StripTrailingWhiteSpaces()
+
+
 "feel free to choose :set background=light for a different style
 set background=dark
 colors railscasts
