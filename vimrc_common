@@ -22,8 +22,11 @@ set expandtab
 set mouse=a
 set bs=2
 set backup
+set hlsearch
+set hidden
 set backupdir=~/.vim/backup
 set directory=~/.vim/tmp
+runtime macros/matchit.vim
 map! <silent> <C-right> <esc>gt<CR>i
 map! <silent> <C-left> <esc>gT<CR>i
 nmap <silent> <C-right> gt
