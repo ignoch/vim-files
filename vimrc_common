@@ -31,6 +31,9 @@ map! <silent> <C-right> <esc>gt<CR>i
 map! <silent> <C-left> <esc>gT<CR>i
 nmap <silent> <C-right> gt
 nmap <silent> <C-left> gT
+       
+highlight ColorColumn ctermbg=darkred ctermfg=white guibg=#2d2d2d
+match ColorColumn /\%81v.\+/
 
 "if has("autocmd")
 "  au InsertEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
@@ -112,6 +115,8 @@ nnoremap <c-j> :m+<CR>==
 nnoremap <c-k> :m-2<CR>==
 nnoremap <c-f> :<c-u>FufFile **/<CR>
 nnoremap <c-b> :<c-u>FufBuffer **/<CR>
+nnoremap <c-+> <CR>]
+nnoremap <c-`> <CR>[
 inoremap <F7> <esc> :sp<CR>
 inoremap <F8> <esc> :vsp<CR>
 inoremap <c-f> <esc> :<c-u>FufFile **/<CR>
