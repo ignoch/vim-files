@@ -35,6 +35,7 @@ nmap <silent> <C-left> gT
 highlight ColorColumn ctermbg=darkred ctermfg=white guibg=#2d2d2d
 match ColorColumn /\%81v.\+/
 
+
 "if has("autocmd")
 "  au InsertEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
 "  au InsertLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape block"
@@ -125,6 +126,13 @@ inoremap <c-j> <Esc>:m+<CR>==gi
 inoremap <c-k> <Esc>:m-2<CR>==gi
 vnoremap <c-j> :m'>+<CR>gv=gv
 vnoremap <c-k> :m-2<CR>gv=gv
+
+if exists('+colorcolumn')
+  hi ColorColumn ctermbg=234 guibg=#2d2d2d
+  set colorcolumn=80
+else
+  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+endif
 
 "====== ZenCoding language behavior ==========
 let g:user_zen_expandabbr_key = '<c-e>'
