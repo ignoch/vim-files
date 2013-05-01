@@ -31,6 +31,9 @@ map! <silent> <C-right> <esc>gt<CR>i
 map! <silent> <C-left> <esc>gT<CR>i
 nmap <silent> <C-right> gt
 nmap <silent> <C-left> gT
+       
+highlight ColorColumn ctermbg=darkred ctermfg=white guibg=#2d2d2d
+match ColorColumn /\%81v.\+/
 
 
 "if has("autocmd")
@@ -113,6 +116,8 @@ nnoremap <c-j> :m+<CR>==
 nnoremap <c-k> :m-2<CR>==
 nnoremap <c-f> :<c-u>FufFile **/<CR>
 nnoremap <c-b> :<c-u>FufBuffer **/<CR>
+nnoremap <c-+> <CR>]
+nnoremap <c-`> <CR>[
 inoremap <F7> <esc> :sp<CR>
 inoremap <F8> <esc> :vsp<CR>
 inoremap <c-f> <esc> :<c-u>FufFile **/<CR>
@@ -121,6 +126,13 @@ inoremap <c-j> <Esc>:m+<CR>==gi
 inoremap <c-k> <Esc>:m-2<CR>==gi
 vnoremap <c-j> :m'>+<CR>gv=gv
 vnoremap <c-k> :m-2<CR>gv=gv
+
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+set splitbelow
+set splitright
 
 if exists('+colorcolumn')
   hi ColorColumn ctermbg=234 guibg=#2d2d2d
