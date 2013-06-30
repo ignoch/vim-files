@@ -26,6 +26,7 @@ set hlsearch
 set hidden
 set backupdir=~/.vim/backup
 set directory=~/.vim/tmp
+set shell=/bin/sh
 runtime macros/matchit.vim
 map! <silent> <C-right> <esc>gt<CR>i
 map! <silent> <C-left> <esc>gT<CR>i
@@ -35,6 +36,12 @@ nmap <silent> <C-left> gT
 highlight ColorColumn ctermbg=darkred ctermfg=white guibg=#2d2d2d
 match ColorColumn /\%81v.\+/
 
+
+" Rspec.vim mappings
+map <Leader>t :call RunCurrentSpecFile()<CR>
+map <Leader>s :call RunNearestSpec()<CR>
+map <Leader>l :call RunLastSpec()<CR>
+map <Leader>a :call RunAllSpecs()<CR>
 
 "if has("autocmd")
 "  au InsertEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
@@ -140,7 +147,8 @@ if exists('+colorcolumn')
 else
   au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
-
+let g:ackprg="ack-grep -H --nocolor --nogroup --column"
+let mapleader = ","
 "====== ZenCoding language behavior ==========
 let g:user_zen_expandabbr_key = '<c-e>'
 let g:user_zen_complete_tag = 1
