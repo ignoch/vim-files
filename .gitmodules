@@ -40,3 +40,6 @@
 [submodule "bundle/vim-rspec"]
 	path = bundle/vim-rspec
 	url = https://github.com/thoughtbot/vim-rspec
+[submodule "bundle/vagrantfile"]
+	path = bundle/vagrantfile
+	url = https://github.com/robbevan/Vagrantfile.vim.git
