@@ -40,3 +40,6 @@
 [submodule "bundle/vagrantfile"]
 	path = bundle/vagrantfile
 	url = https://github.com/robbevan/Vagrantfile.vim.git
+[submodule "bundle/vim-slim"]
+	path = bundle/vim-slim
+	url = git@github.com:slim-template/vim-slim.git
