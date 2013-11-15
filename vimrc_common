@@ -100,6 +100,9 @@ function! StripTrailingWhiteSpaces()
 
 autocmd BufWritePre *.md,*.js,*.rb,*.html,*.haml,*.erb,*.css,*.sass,*.coffee,*.yml call StripTrailingWhiteSpaces()
 
+" Remeber foldings
+autocmd BufWinLeave *.* mkview
+autocmd BufWinEnter *.* silent loadview 
 
 "feel free to choose :set background=light for a different style
 set background=dark
