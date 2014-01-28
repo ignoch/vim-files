@@ -122,6 +122,8 @@ vmap <silent> <F6> :call NERDComment(1, "uncomment")<CR>
 nmap <silent> <F7> :sp<CR>
 nmap <silent> <F8> :vsp<CR>
 nmap <silent> <F12> :ls<CR>:buffer<Space>
+" Allow saving of files as sudo when I forgot to start vim using sudo.
+cmap w!! w !sudo tee > /dev/null %
 
 nnoremap <c-j> :m+<CR>==
 nnoremap <c-k> :m-2<CR>==
