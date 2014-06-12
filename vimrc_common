@@ -153,7 +153,7 @@ if exists('+colorcolumn')
 else
   au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
-let g:ackprg="ack-grep -H --nocolor --nogroup --column"
+let g:ackprg="ack -H --nocolor --nogroup --column"
 let mapleader = ","
 "====== ZenCoding language behavior ==========
 let g:user_zen_expandabbr_key = '<c-e>'
