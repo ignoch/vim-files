@@ -1,8 +1,26 @@
-autocmd!
 set nocompatible
 filetype off
-call pathogen#runtime_append_all_bundles()
-filetype plugin indent on
+
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin('~/.vim/plugins')
+
+" let Vundle manage Vundle, required
+Plugin 'gmarik/Vundle.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'L9'
+Plugin 'scrooloose/nerdtree'
+Plugin 'kchmck/vim-coffee-script'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'tpope/vim-rails'
+Plugin 'mileszs/ack.vim'
+Plugin 'ervandew/supertab'
+Plugin 'pangloss/vim-javascript'
+Plugin 'FuzzyFinder'
+Plugin 'cakebaker/scss-syntax.vim'
+Plugin 'tpope/vim-haml'
+
+call vundle#end()            " required
+filetype plugin indent on    " required
 
 syntax on
 set encoding=utf-8
@@ -28,27 +46,10 @@ set backupdir=~/.vim/backup
 set directory=~/.vim/tmp
 set shell=/bin/sh
 set laststatus=2
-runtime macros/matchit.vim
-map! <silent> <C-right> <esc>gt<CR>i
-map! <silent> <C-left> <esc>gT<CR>i
-nmap <silent> <C-right> gt
-nmap <silent> <C-left> gT
-       
-highlight ColorColumn ctermbg=darkred ctermfg=white guibg=#2d2d2d
-match ColorColumn /\%81v.\+/
+let mapleader = ","
 
+set statusline=[%n]\ %<%.99f\ %h%w%m%r%y%{exists('g:loaded_rvm')?rvm#statusline():''}%=%-16(\ %l,%c-%v\ %)%P\ %{fugitive#statusline()}
 
-" Rspec.vim mappings
-map <Leader>t :call RunCurrentSpecFile()<CR>
-map <Leader>s :call RunNearestSpec()<CR>
-map <Leader>l :call RunLastSpec()<CR>
-map <Leader>a :call RunAllSpecs()<CR>
-
-"if has("autocmd")
-"  au InsertEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
-"  au InsertLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape block"
-"  au VimLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
-"endif
 
 " Ruby {
    " ruby standard 2 spaces, always
@@ -61,11 +62,6 @@ map <Leader>a :call RunAllSpecs()<CR>
 " JQuery {
     au BufRead,BufNewFile jquery.*.js, *.js set ft=javascript syntax=jquery
 " }
-" RVM {
-   " set statusline+=%{rvm#statusline()}
-    set statusline=[%n]\ %<%.99f\ %h%w%m%r%y%{exists('g:loaded_rvm')?rvm#statusline():''}%=%-16(\ %l,%c-%v\ %)%P\ %{fugitive#statusline()}
-" }
-" GIT statusline
 if has("gui_running")
     set t_Co=256
     " Remove menu bar
@@ -73,7 +69,6 @@ if has("gui_running")
     " Rename tab name
     set guitablabel=%!expand(\"\%:t\")
     set showtabline=2
-
     " Remove toolbar
     set guioptions-=T
 endif
@@ -111,7 +106,7 @@ colors railscasts
 "=== Maps de Teclado ======
 map! <silent> <F2> <C-O>:w<CR>
 map! <silent> <F3> <esc>:q<CR>
-map! <silent> <F4> <esc>:NERDTreeToggle<CR>i
+map! <silent> <F4> <esc> :NERDTreeToggle<CR>i
 map! <silent> <F12> <esc>:ls<CR>:buffer<Space>
 
 nmap <silent> <F2> :w<CR>
@@ -153,20 +148,3 @@ if exists('+colorcolumn')
 else
   au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
-let g:ackprg="ack -H --nocolor --nogroup --column"
-let mapleader = ","
-"====== ZenCoding language behavior ==========
-let g:user_zen_expandabbr_key = '<c-e>'
-let g:user_zen_complete_tag = 1
-let g:user_zen_settings = {
-\  'indentation' : '  ',
-\  'haml' : {
-\    'filters' : 'haml',
-\    'extends' : 'html'
-\  }
-\}
-
-"=== Poweline
-"set encoding=utf-8
-"let g:Powerline_symbols = 'fancy'
-"set rtp+=/Users/ignoch/Library/Python/2.7/lib/python/site-packages/powerline/bindings/vim
