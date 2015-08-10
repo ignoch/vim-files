@@ -18,6 +18,7 @@ Plugin 'pangloss/vim-javascript'
 Plugin 'FuzzyFinder'
 Plugin 'cakebaker/scss-syntax.vim'
 Plugin 'tpope/vim-haml'
+Plugin 'editorconfig/editorconfig-vim'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -46,6 +47,7 @@ set backupdir=~/.vim/backup
 set directory=~/.vim/tmp
 set shell=/bin/sh
 set laststatus=2
+set noswapfile
 let mapleader = ","
 
 set statusline=[%n]\ %<%.99f\ %h%w%m%r%y%{exists('g:loaded_rvm')?rvm#statusline():''}%=%-16(\ %l,%c-%v\ %)%P\ %{fugitive#statusline()}
@@ -122,8 +124,8 @@ cmap w!! w !sudo tee > /dev/null %
 
 nnoremap <c-j> :m+<CR>==
 nnoremap <c-k> :m-2<CR>==
-nnoremap <c-f> :<c-u>FufFile **/<CR>
-nnoremap <c-b> :<c-u>FufBuffer **/<CR>
+nnoremap <leader>f :<c-u>FufFile **/<CR>
+nnoremap <leader>b :<c-u>FufBuffer **/<CR>
 nnoremap <c-+> <CR>]
 nnoremap <c-`> <CR>[
 inoremap <F7> <esc> :sp<CR>
