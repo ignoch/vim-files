@@ -18,6 +18,7 @@ Plugin 'pangloss/vim-javascript'
 Plugin 'FuzzyFinder'
 Plugin 'cakebaker/scss-syntax.vim'
 Plugin 'tpope/vim-haml'
+Plugin 'editorconfig/editorconfig-vim'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
